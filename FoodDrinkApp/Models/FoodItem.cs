@@ -1,45 +1,23 @@
-using System.Text.Json.Serialization;
+﻿using System;
 
-namespace FoodDrinkApp.Models;
-
-public sealed class FoodItem
+namespace FoodDrinkApp.Models
 {
-    [JsonPropertyName("id")]
-    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    public class FoodItem
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; }
+        public string Category { get; set; }
+        public string Description { get; set; }
+        public int Calories { get; set; }
+        public int Protein { get; set; }
+        public int Carbs { get; set; }
+        public int Fat { get; set; }
+        public string AllergyNote { get; set; }
+        public string Tags { get; set; }
+        public string ImageUrl { get; set; }
 
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("category")]
-    public string Category { get; set; } = string.Empty;
-
-    [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
-
-    [JsonPropertyName("calories")]
-    public int Calories { get; set; }
-
-    [JsonPropertyName("protein")]
-    public int Protein { get; set; }
-
-    [JsonPropertyName("carbs")]
-    public int Carbs { get; set; }
-
-    [JsonPropertyName("fat")]
-    public int Fat { get; set; }
-
-    [JsonPropertyName("allergyNote")]
-    public string AllergyNote { get; set; } = string.Empty;
-
-    [JsonPropertyName("tags")]
-    public string Tags { get; set; } = string.Empty;
-
-    [JsonIgnore]
-    public string CaloriesLabel => $"{Calories} kcal";
-
-    [JsonIgnore]
-    public string MacroSummary => $"Protein {Protein}g, carbs {Carbs}g, fat {Fat}g";
-
-    [JsonIgnore]
-    public string AccessibleSummary => $"{Name}. {Category}. {Calories} kcal. {MacroSummary}. {AllergyNote}";
+        public string CaloriesLabel => $"{Calories} kcal";
+        public string MacroSummary => $"Protein {Protein}g, Carbs {Carbs}g, Fat {Fat}g";
+        public string AccessibleSummary => $"{Name}. {Category}. {Calories} kcal. {MacroSummary}. {AllergyNote}";
+    }
 }
