@@ -1,95 +1,47 @@
+using Microsoft.Maui.Controls;
+using System;
 using FoodDrinkApp.Models;
 using FoodDrinkApp.Services;
 
-namespace FoodDrinkApp;
-
-[QueryProperty(nameof(ItemId), "id")]
-public partial class FoodDetailPage : ContentPage
+namespace FoodDrinkApp
 {
-    private FoodItem? currentItem;
-
-    public FoodDetailPage()
+    [QueryProperty(nameof(FoodData), "SelectedFoodItem")]
+    public partial class FoodDetailPage : ContentPage
     {
-        InitializeComponent();
-    }
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        AccessibilityService.ApplyFontScale(this);
-    }
-
-    protected override void OnDisappearing()
-    {
-        SpeechService.Stop();
-        base.OnDisappearing();
-    }
-
-    public string ItemId
-    {
-        set => _ = LoadItemAsync(value);
-    }
-
-    private async Task LoadItemAsync(string id)
-    {
-        currentItem = await FoodCatalogService.GetByIdAsync(id);
-        BindingContext = currentItem;
-        RenderItem();
-    }
-
-    private void RenderItem()
-    {
-        if (currentItem is null)
+        private FoodItem _foodData;
+        public FoodItem FoodData
         {
-            NameLabel.Text = "Record not found";
-            DescriptionLabel.Text = "The selected food or drink could not be loaded.";
-            return;
+            get => _foodData;
+            set
+            {
+                _foodData = value;
+                OnPropertyChanged();
+                BindingContext = _foodData;
+            }
         }
 
-        NameLabel.Text = currentItem.Name;
-        CategoryLabel.Text = currentItem.Category;
-        CaloriesLabel.Text = currentItem.CaloriesLabel;
-        MacroLabel.Text = currentItem.MacroSummary;
-        DescriptionLabel.Text = currentItem.Description;
-        AllergyLabel.Text = currentItem.AllergyNote;
-        SemanticProperties.SetDescription(NameLabel, currentItem.AccessibleSummary);
-    }
-
-    private async void OnSpeakClicked(object? sender, EventArgs e)
-    {
-        if (currentItem is null)
+        public FoodDetailPage()
         {
-            await DisplayAlert("Missing record", "There is no nutrition summary to read.", "OK");
-            return;
+            InitializeComponent();
         }
 
-        try
+        private async void OnReadAloudClicked(object sender, EventArgs e)
         {
-            await SpeechService.SpeakAsync(currentItem.AccessibleSummary);
+            if (FoodData != null)
+            {
+                await SpeechService.SpeakAsync(FoodData.AccessibleSummary);
+            }
         }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Text to speech unavailable", ex.Message, "OK");
-        }
-    }
 
-    private void OnStopSpeechClicked(object? sender, EventArgs e)
-    {
-        SpeechService.Stop();
-        SemanticScreenReader.Announce("Reading stopped.");
-    }
-
-    private async void OnVibrateClicked(object? sender, EventArgs e)
-    {
-        try
+        private void OnStopSpeechClicked(object sender, EventArgs e)
         {
-            Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
-            HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
-            await DisplayAlert("Reminder", "Vibration feedback has been triggered.", "OK");
+            SpeechService.Stop();
         }
-        catch (Exception ex)
+
+        protected override void OnDisappearing()
         {
-            await DisplayAlert("Vibration unavailable", ex.Message, "OK");
+            base.OnDisappearing();
+            SpeechService.Stop();
         }
     }
 }
