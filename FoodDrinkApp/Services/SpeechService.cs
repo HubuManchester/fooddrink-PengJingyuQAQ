@@ -1,47 +1,36 @@
-namespace FoodDrinkApp.Services;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Maui.Media;
 
-public static class SpeechService
+namespace FoodDrinkApp.Services
 {
-    private static CancellationTokenSource? currentSpeech;
-
-    public static async Task SpeakAsync(string text)
+    public static class SpeechService
     {
-        Stop();
+        private static CancellationTokenSource _cancellationTokenSource;
 
-        currentSpeech = new CancellationTokenSource();
-        var options = new SpeechOptions
+        public static async Task SpeakAsync(string text)
         {
-            Volume = 0.9f,
-            Pitch = 1.05f,
-            Locale = await FindEnglishLocaleAsync()
-        };
+            Stop();
 
-        try
-        {
-            await TextToSpeech.Default.SpeakAsync(text, options, currentSpeech.Token);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-    }
+            _cancellationTokenSource = new CancellationTokenSource();
 
-    public static Task SpeakChineseAsync(string text) => SpeakAsync(text);
-
-    public static void Stop()
-    {
-        if (currentSpeech is null)
-        {
-            return;
+            try
+            {
+                await TextToSpeech.Default.SpeakAsync(text, cancelToken: _cancellationTokenSource.Token);
+            }
+            catch (TaskCanceledException)
+            {
+            }
         }
 
-        currentSpeech.Cancel();
-        currentSpeech.Dispose();
-        currentSpeech = null;
-    }
-
-    private static async Task<Locale?> FindEnglishLocaleAsync()
-    {
-        var locales = await TextToSpeech.Default.GetLocalesAsync();
-        return locales.FirstOrDefault(locale => locale.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+        public static void Stop()
+        {
+            if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+                _cancellationTokenSource = null;
+            }
+        }
     }
 }

@@ -1,106 +1,59 @@
+using System;
+using Microsoft.Maui.Controls;
 using FoodDrinkApp.Models;
 using FoodDrinkApp.Services;
 
-namespace FoodDrinkApp;
-
-public partial class AddItemPage : ContentPage
+namespace FoodDrinkApp
 {
-    public AddItemPage()
+    public partial class AddItemPage : ContentPage
     {
-        InitializeComponent();
-    }
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        AccessibilityService.ApplyFontScale(this);
-    }
-
-    private async void OnSaveClicked(object? sender, EventArgs e)
-    {
-        try
+        public AddItemPage()
         {
-            var validationMessage = ValidateForm(out var calories, out var protein, out var carbs, out var fat);
-            if (validationMessage is not null)
+            InitializeComponent();
+        }
+
+        private async void OnSaveClicked(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(NameEntry.Text) ||
+                string.IsNullOrWhiteSpace(CategoryEntry.Text) ||
+                string.IsNullOrWhiteSpace(CaloriesEntry.Text))
             {
-                ShowValidation(validationMessage);
-                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(250));
+                await DisplayAlert("Validation Error", "Name, Category, and Calories are required fields.", "OK");
                 return;
             }
 
-            var item = new FoodItem
+            if (!int.TryParse(CaloriesEntry.Text, out int calories) || calories < 0)
             {
-                Name = NameEntry.Text!.Trim(),
-                Category = CategoryPicker.SelectedItem?.ToString() ?? "Snack",
-                Description = DescriptionEditor.Text!.Trim(),
+                await DisplayAlert("Validation Error", "Please enter a valid positive number for Calories.", "OK");
+                return;
+            }
+
+            var newItem = new FoodItem
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = NameEntry.Text.Trim(),
+                Category = CategoryEntry.Text.Trim(),
                 Calories = calories,
-                Protein = protein,
-                Carbs = carbs,
-                Fat = fat,
-                AllergyNote = string.IsNullOrWhiteSpace(AllergyEntry.Text)
-                    ? "No allergy note provided."
-                    : AllergyEntry.Text.Trim(),
-                Tags = $"{NameEntry.Text} {CategoryPicker.SelectedItem} {DescriptionEditor.Text}"
+                Protein = (int)(calories * 0.15 / 4),
+                Carbs = (int)(calories * 0.50 / 4),
+                Fat = (int)(calories * 0.35 / 9),
+                Description = string.IsNullOrWhiteSpace(DescriptionEditor.Text) ? "No description provided." : DescriptionEditor.Text.Trim(),
+                AllergyNote = string.IsNullOrWhiteSpace(AllergyEntry.Text) ? "None" : AllergyEntry.Text.Trim(),
+                Tags = string.IsNullOrWhiteSpace(TagsEntry.Text) ? "General" : TagsEntry.Text.Trim(),
+                ImageUrl = string.IsNullOrWhiteSpace(ImageUrlEntry.Text) ? "https://via.placeholder.com/150" : ImageUrlEntry.Text.Trim()
             };
 
-            await FoodCatalogService.AddAsync(item);
-            HapticFeedback.Default.Perform(HapticFeedbackType.Click);
-            SemanticScreenReader.Announce("Food record saved.");
+            await FoodCatalogService.AddAsync(newItem);
 
-            await DisplayAlert(
-                "Saved",
-                MockApiConfig.IsConfigured
-                    ? "The record has been saved to mockapi.io."
-                    : "The record has been saved to local fallback data.",
-                "OK");
+            await DisplayAlert("Success", "Recipe added successfully!", "OK");
 
-            await Shell.Current.GoToAsync("..");
+            NameEntry.Text = string.Empty;
+            CategoryEntry.Text = string.Empty;
+            CaloriesEntry.Text = string.Empty;
+            DescriptionEditor.Text = string.Empty;
+            AllergyEntry.Text = string.Empty;
+            TagsEntry.Text = string.Empty;
+            ImageUrlEntry.Text = string.Empty;
         }
-        catch (Exception ex)
-        {
-            ShowValidation($"The record could not be saved: {ex.Message}");
-        }
-    }
-
-    private string? ValidateForm(out int calories, out int protein, out int carbs, out int fat)
-    {
-        calories = protein = carbs = fat = 0;
-
-        if (string.IsNullOrWhiteSpace(NameEntry.Text))
-        {
-            return "Please enter a food or drink name.";
-        }
-
-        if (CategoryPicker.SelectedIndex < 0)
-        {
-            return "Please choose a category.";
-        }
-
-        if (string.IsNullOrWhiteSpace(DescriptionEditor.Text))
-        {
-            return "Please add a short description.";
-        }
-
-        return TryReadNumber(CaloriesEntry.Text, "calories", out calories)
-            ?? TryReadNumber(ProteinEntry.Text, "protein", out protein)
-            ?? TryReadNumber(CarbsEntry.Text, "carbs", out carbs)
-            ?? TryReadNumber(FatEntry.Text, "fat", out fat);
-    }
-
-    private static string? TryReadNumber(string? value, string fieldName, out int number)
-    {
-        if (int.TryParse(value, out number) && number >= 0)
-        {
-            return null;
-        }
-
-        return $"Please enter a valid non-negative number for {fieldName}.";
-    }
-
-    private void ShowValidation(string message)
-    {
-        ValidationLabel.Text = message;
-        ValidationPanel.IsVisible = true;
-        SemanticScreenReader.Announce(message);
     }
 }
