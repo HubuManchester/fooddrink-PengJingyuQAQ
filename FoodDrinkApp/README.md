@@ -44,4 +44,5 @@ dotnet build .\FoodDrinkApp.csproj -f net8.0-android
 2. **Cloud & Detail Page:** Show the cloud-synced list and navigate into the Food Detail Page.
 3. **Hardware & Haptics:** Demonstrate the synchronized Text-to-Speech and device vibration feature.
 4. **API Proof (Flashlight):** Since emulators lack physical LEDs, refer to the source code to showcase the `Flashlight.TurnOnAsync()` implementation.
-5. **Code Standards:** Showcase the integration of `CommunityToolkit.Maui.Analyzers` ensuring robust, production-ready code.
+5. **Tablet Optimization:** Display the application running smoothly on a Tablet emulator to highlight cross-platform responsive design.
+6. **Code Standards:** Showcase the integration of `CommunityToolkit.Maui.Analyzers` ensuring robust, production-ready code.
