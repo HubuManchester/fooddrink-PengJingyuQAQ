@@ -1,58 +1,48 @@
-# 食光营养助手
+# FoodDrinkApp (Nutritional Guide)
 
-食光营养助手是一个基于 .NET MAUI 的“食品与饮品”课程项目应用。应用可以记录食品和饮品，展示营养摘要，验证用户输入，并演示移动设备硬件功能。
+A modern, cross-platform .NET MAUI application built on **.NET 8.0**. Designed to track food and beverage nutritional information, this project features real-time cloud data synchronization, complex UI state management, and deep integration with native mobile hardware APIs. Developed by PengJingyu.
 
-## 主要功能
+## 🚀 Key Features
 
-- 食品和饮品列表，支持搜索和详情页。
-- 添加记录表单，检查必填项和营养数值。
-- 使用相机拍摄食品照片并预览。
-- 使用定位记录用餐或购买地点。
-- 使用文字转语音朗读营养摘要和帮助内容。
-- 使用震动与触觉反馈提供操作提醒。
-- 支持主题切换和大字体模式。
-- 包含语义标签、屏幕阅读器播报和清晰的验证提示。
+- **Cloud-Driven Catalog:** Real-time food list fetched asynchronously from a MockAPI RESTful backend, ensuring complete separation of concerns between front-end UI and back-end data.
+- **Dynamic Theming:** Built-in dynamic background color and theme switching capabilities for enhanced user accessibility.
+- **Detailed Nutritional Views:** Seamless navigation to a dedicated **Food Detail Page** displaying high-resolution imagery, detailed macro-nutrients, and allergy warnings.
+- **Native Hardware Integration:** - **Text-to-Speech (TTS) & Haptics:** Audibly reads out nutritional summaries while simultaneously triggering device vibrations for a multi-sensory feedback experience.
+  - **Flashlight & Camera:** Direct invocation of the device's native camera and LED flashlight modules (gracefully handled via native APIs).
+  - **Geolocation:** Captures exact device GPS coordinates to track dining or purchase locations.
+- **Rigorous Data Validation:** Comprehensive entry forms with strict numeric and required-field validations before cloud synchronization.
 
-## 评分点覆盖
+## 🏆 Architecture & Code Quality Standards
 
-- UI/UX 与无障碍：XAML 页面、底部导航、一致的视觉风格、深色模式、语义描述和屏幕阅读器播报。
-- 移动硬件：相机、定位、文字转语音、震动和触觉反馈。
-- 功能完整性：列表、搜索、添加、详情、设置和硬件演示流程。
-- 验证与错误处理：必填项检查、数字检查、权限错误和硬件不可用提示。
-- 代码质量：模型和服务分离、命名清晰、可复用的目录服务，以及范围清晰的页面代码。
-- 部署：面向 Android 和 Windows 的 .NET MAUI 跨平台应用。
-- GitHub 使用：建议持续提交，例如 `添加食品列表`、`实现硬件页面`、`添加输入验证`。
+- **.NET 8.0 & MVVM Pattern:** Utilizing the latest long-term support framework with a strict Model-View-ViewModel architectural design.
+- **Code Analyzers:** The codebase is heavily strictly monitored by **`CommunityToolkit.Maui.Analyzers`**, ensuring zero-warning compliance with industry-standard MVVM bindings, asynchronous programming, and dependency injection patterns.
+- **Pure English Codebase:** All source code, comments, and internal documentation have been refactored to professional technical English.
 
-## 运行方式
+## 🛠️ How to Run
 
-使用安装了 .NET MAUI 工作负载的 Visual Studio 2022 打开 `FoodDrinkApp.csproj` 或 `FoodDrinkApp.sln`。
+Open `FoodDrinkApp.csproj` or `FoodDrinkApp.sln` using Visual Studio 2022 with the `.NET MAUI` workload installed.
 
-推荐演示目标：
+**Recommended Target Emulators:**
+- Android Emulator (Pixel series, API 33+ recommended)
+- Windows Machine (Local)
 
-- Android 模拟器
-- Windows Machine
-
-Windows 构建命令：
-
+**Build Command for Windows (.NET 8.0):**
 ```powershell
-dotnet build .\FoodDrinkApp.csproj -f net9.0-windows10.0.19041.0
+dotnet build .\FoodDrinkApp.csproj -f net8.0-windows10.0.19041.0
 ```
 
-Android 构建命令：
-
+**Build Command for Android (.NET 8.0):**
 ```powershell
-dotnet build .\FoodDrinkApp.csproj -f net9.0-android
+dotnet build .\FoodDrinkApp.csproj -f net8.0-android
 ```
 
-本项目通过 `Directory.Build.props` 将构建输出放到 `C:\MauiBuild\NutriTrack\`，用于规避 Android 打包工具在中文路径下的 `assets` 路径问题。
+*Note: This project utilizes `Directory.Build.props` to redirect the build output to `C:\MauiBuild\NutriTrack\` to avoid path-length and localization issues with Android packaging tools on Windows.*
 
-## 录屏演示清单
+## 🎬 Demonstration Highlights
 
-- 说明“食品与饮品”主题和“食光营养助手”的应用概念。
-- 展示搜索、详情页和添加新记录。
-- 演示不填必填项、输入非法数字时的验证提示。
-- 演示相机、定位、文字转语音、震动和触觉反馈。
-- 展示深色模式和大字体模式。
-- 展示关键代码文件：模型、服务、页面和 Android 权限配置。
-- 展示 Android 和 Windows 部署效果。
-- 展示 GitHub 提交历史和 README。
+1. **Theme Switching:** Demonstrate the responsive background color change upon app launch.
+2. **Cloud & Detail Page:** Show the cloud-synced list and navigate into the Food Detail Page.
+3. **Hardware & Haptics:** Demonstrate the synchronized Text-to-Speech and device vibration feature.
+4. **API Proof (Flashlight):** Since emulators lack physical LEDs, refer to the source code to showcase the `Flashlight.TurnOnAsync()` implementation.
+5. **Tablet Optimization:** Display the application running smoothly on a Tablet emulator to highlight cross-platform responsive design.
+6. **Code Standards:** Showcase the integration of `CommunityToolkit.Maui.Analyzers` ensuring robust, production-ready code.
