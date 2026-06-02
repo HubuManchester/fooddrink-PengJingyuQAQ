@@ -40,26 +40,52 @@ namespace FoodDrinkApp
         {
             try
             {
-                var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                LocationLabel.Text = "Locating... Please wait for satellite link.";
+
+                var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(8));
                 var location = await Geolocation.Default.GetLocationAsync(request);
+
+                if (location == null)
+                {
+                    location = await Geolocation.Default.GetLastKnownLocationAsync();
+                }
 
                 if (location != null)
                 {
-                    var placemarks = await Geocoding.Default.GetPlacemarksAsync(location.Latitude, location.Longitude);
-                    var placemark = placemarks?.FirstOrDefault();
+                    try
+                    {
+                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(location.Latitude, location.Longitude);
+                        var placemark = placemarks?.FirstOrDefault();
 
-                    if (placemark != null)
-                    {
-                        LocationLabel.Text = $"{placemark.Locality}, {placemark.AdminArea}, {placemark.CountryName}\nLat: {location.Latitude:F4}, Lng: {location.Longitude:F4}";
+                        if (placemark != null)
+                        {
+                            LocationLabel.Text = $"{placemark.Locality}, {placemark.AdminArea}, {placemark.CountryName}\nLat: {location.Latitude:F4}, Lng: {location.Longitude:F4}";
+                        }
+                        else
+                        {
+                            LocationLabel.Text = $"Lat: {location.Latitude:F4}, Lng: {location.Longitude:F4}";
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
+                        // Strategy 2: If reverse geocoding fails due to network/GMS blocks, always output raw coordinates
                         LocationLabel.Text = $"Lat: {location.Latitude:F4}, Lng: {location.Longitude:F4}";
                     }
                 }
+                else
+                {
+                    // Strategy 3: Explicitly prompt user if both scanning and cache are unavailable
+                    LocationLabel.Text = "Location service timed out. Please check your phone's GPS switch.";
+                }
+            }
+            catch (PermissionException)
+            {
+                LocationLabel.Text = "Location permission denied.";
+                await DisplayAlert("Permission Required", "Please grant location access in your system app settings.", "OK");
             }
             catch (Exception ex)
             {
+                LocationLabel.Text = $"Error: {ex.Message}";
                 await DisplayAlert("Error", ex.Message, "OK");
             }
         }
